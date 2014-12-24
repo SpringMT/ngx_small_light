@@ -77,7 +77,7 @@ ngx_int_t ngx_http_small_light_imagemagick_process(ngx_http_request_t *r, ngx_ht
     int                                     rmprof_flg, progressive_flg;
     double                                  iw, ih, q;
     char                                   *jpeg_size_opt, *of_orig, *crop_geo, *size_geo;
-    char                                   *unsharp, *sharpen, *blur, *of;
+    char                                   *unsharp, *sharpen, *blur, *dealpha, *of;
     MagickWand                             *trans_wand, *canvas_wand;
     DrawingWand                            *border_wand;
     PixelWand                              *bg_color, *canvas_color, *border_color;
@@ -254,6 +254,18 @@ ngx_int_t ngx_http_small_light_imagemagick_process(ngx_http_request_t *r, ngx_ht
                           __LINE__);
         }
     }
+
+    dealpha = NGX_HTTP_SMALL_LIGHT_PARAM_GET_LIT(&ctx->hash, "dealpha");
+    if (dealpha != NULL) {
+        status = MagickSetImageAlphaChannel(ictx->wand, DeactivateAlphaChannel);
+        if (status == MagickFalse) {
+            ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
+                          "dealpha failed %s:%d",
+                          __FUNCTION__,
+                          __LINE__);
+        }
+    }
+
 
     /* border. */
     if (sz.bw > 0.0 || sz.bh > 0.0) {
